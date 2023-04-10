@@ -1,0 +1,2 @@
+class HoverboardError(Exception):
+    pass
