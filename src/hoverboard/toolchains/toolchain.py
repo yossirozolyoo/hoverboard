@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Mapping
 from ..types import HierarchyMapping
 
@@ -5,7 +6,7 @@ from ..types import HierarchyMapping
 Metadata = Mapping[str, str]
 
 
-class Toolchain:
+class Toolchain(ABC):
     """
     Represents an existing toolchain.
     """
@@ -25,3 +26,14 @@ class Toolchain:
         :return: The metadata of the toolchain
         """
         return self._metadata.copy()
+
+    @staticmethod
+    @abstractmethod
+    def create(metadata: Metadata) -> 'Toolchain':
+        """
+        Create an instance of the toolchain using the given metadata.
+
+        :param metadata: The toolchain's metadata
+        :return: The created instance.
+        """
+        pass
