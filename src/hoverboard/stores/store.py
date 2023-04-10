@@ -87,3 +87,21 @@ class BinaryStore:
         :return: The store.
         """
         return _stores[name]
+
+    def get_path(self, name: str) -> str:
+        """
+        Returns a full path for a file in the store.
+
+        :param name: The relative path of the file in the store
+        :return: The path on disk.
+        """
+        return os.path.join(self._path, name)
+
+    def isfile(self, file_name: str) -> bool:
+        """
+        Checks if a given name exists, and is a file.
+
+        :param file_name: The file name
+        :return: Whether it exists or not.
+        """
+        return os.path.isfile(os.path.join(self._path, file_name))
