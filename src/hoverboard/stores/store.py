@@ -11,12 +11,12 @@ class BinaryStore:
     """
     Represents a binary store on the disk.
     """
-    def __init__(self, path: str = None, name: str = None):
+    def __init__(self, name: str = None, path: str = None):
         """
         Initializes the `BinaryStore` instance.
 
-        :param path: The path the store is in. `None` for a temporary path.
         :param name: The name to give to the store. `None` for no registration
+        :param path: The path the store is in. `None` for a temporary path.
             of the store.
         """
         if path is None:
@@ -74,12 +74,12 @@ class BinaryStore:
             os.mkdir(store_path)
 
         if self._name is None:
-            return BinaryStore(store_path)
+            return BinaryStore(path=store_path)
         else:
-            return BinaryStore(store_path, store_name)
+            return BinaryStore(name=store_name, path=store_path)
 
     @staticmethod
-    def get(name: str) ->'BinaryStore':
+    def get(name: str) -> 'BinaryStore':
         """
         Get a previously opened store.
 
