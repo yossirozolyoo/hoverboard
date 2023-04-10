@@ -16,6 +16,7 @@ class Toolchain(ABC):
 
         :param metadata: The metadata of the toolchain
         """
+        super().__init__()
         self._metadata = HierarchyMapping(metadata)
 
     @property
