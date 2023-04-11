@@ -9,18 +9,19 @@ class Tool:
     `__search_path__`. The name of the executable is in `__tool_file_name__`, or overriden by the `file_name` argument
     in `__init__`.
     """
-    def __init__(self, search_path: SearchPath = None):
+    def __init__(self, path: str = None, search_path: SearchPath = None):
         """
         Initializes the `Tool` instance.
 
+        :param path: The path the tool resides in
         :param search_path: The search path to use when locating the tool.
         """
+        self._path = path
+
         if search_path is None:
             self._search_path = SearchPath()
         else:
             self._search_path = search_path
-
-        self._path = None
 
     @property
     def search_path(self) -> SearchPath:

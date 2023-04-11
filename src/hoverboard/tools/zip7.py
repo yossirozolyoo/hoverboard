@@ -8,14 +8,15 @@ class Zip7(Tool):
     """
     Wraps the 7zr binary.
     """
-    def __init__(self, download_link: str = None):
+    def __init__(self, path: str = None, download_link: str = None):
         """
         Initializes the `Zip7` instance. Finds the binary on the disk, and can possibly download it if `download_link`
         is supplied.
 
+        :param path: The local path of 7zr.
         :param download_link: The download link for the 7zr to use if no version was found in the system path.
         """
-        super().__init__()
+        super().__init__(path=path)
         self.search_path.add_system_path('7zr.exe')
 
         if download_link is not None:
