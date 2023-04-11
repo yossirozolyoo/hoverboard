@@ -1,5 +1,5 @@
+import os
 import shutil
-import zipfile
 from urllib3 import PoolManager, Retry
 from urllib3.exceptions import HTTPError
 from typing import Union
@@ -54,15 +54,23 @@ class WebStore:
         return download_store.get_path(file_name)
 
     @staticmethod
-    def unzip(url: str, store: BinaryStore = None, **kwargs) -> Union[BinaryStore, None]:
+    def decompress(url: str, compression: str = None, store: BinaryStore = None, **kwargs) -> Union[BinaryStore, None]:
         """
         Downloads a zip file and unzips it.
 
         :param url: The url of the archive.
+        :param compression: The type of the compression. If `None` then the compression is decided based on the suffix
+            of the url.
         :param store: The store to unzip the file into it. `None` for temporary store.
         :param kwargs: Extra keyword arguments to pass to `ZipFile.extractall`
         :return: The store the archive was extracted to.
         """
+        if compression is None:
+            if os.path.extsep not in url:
+                raise ValueError(f'Compression not specified')
+
+            _, compression = url.rsplit(os.path.extsep, 1)
+
         if store is None:
             store = BinaryStore()
 
@@ -70,7 +78,9 @@ class WebStore:
         if compressed is None:
             return None
 
-        archive = zipfile.ZipFile(compressed)
-        archive.extractall(store.path, **kwargs)
+        if compression == 'zip':
+            store.unzip(compressed)
+        else:
+            raise ValueError(f'Unsupported compression {repr(compression)}')
 
         return store

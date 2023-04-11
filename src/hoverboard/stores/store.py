@@ -1,6 +1,7 @@
 import os
 import tempfile
 import uuid
+import zipfile
 from typing import IO
 
 
@@ -105,3 +106,13 @@ class BinaryStore:
         :return: Whether it exists or not.
         """
         return os.path.isfile(os.path.join(self._path, file_name))
+
+    def unzip(self, archive_path: str, **kwargs):
+        """
+        Unzip a zip file to the store.
+
+        :param archive_path: The path to the archive.
+        :param kwargs: Additional keyword arguments to pass to `zipfile.ZipFile.extractall`
+        """
+        archive = zipfile.ZipFile(archive_path)
+        archive.extractall(self._path, **kwargs)
