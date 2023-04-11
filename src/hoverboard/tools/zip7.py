@@ -2,14 +2,27 @@ import os
 from .tool import Tool
 from typing import Sequence, Union
 from .errors import ToolRuntimeError
+from .search_path import SearchPath
 
 
 class Zip7(Tool):
-    __tool_file_name__ = '7zr.exe'
-    __search_path__ = (
-        'system-path',
-        'web:https://www.7-zip.org/a/7zr.exe'
-    )
+    """
+    Wraps the 7zr binary.
+    """
+    def __init__(self, download_link: str = None):
+        """
+        Initializes the `Zip7` instance. Finds the binary on the disk, and can possibly download it if `download_link`
+        is supplied.
+
+        :param download_link: The download link for the 7zr to use if no version was found in the system path.
+        """
+        search_path = SearchPath('7zr.exe')
+        search_path.add_system_path()
+
+        if download_link is not None:
+            search_path.add_web_path(download_link, '7zr.exe')
+
+        super().__init__(search_path)
 
     def compress(self, output_archive: str, files: Union[Sequence[str], str], compress_type='7z'):
         """
