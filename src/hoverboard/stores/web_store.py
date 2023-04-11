@@ -13,15 +13,19 @@ class WebStore:
     Downloads files into `BinaryStore`s.
     """
     @staticmethod
-    def get(url: str, file_name: str, download_store: BinaryStore = None) -> Union[str, None]:
+    def get(url: str, file_name: str = None, download_store: BinaryStore = None) -> Union[str, None]:
         """
         Download a file into the web store.
 
         :param url: The URL to download
-        :param file_name: The name to give to the downloaded file
+        :param file_name: The name to give to the downloaded file. `None` for name extraction from the URL
         :param download_store: The store to download the file in. `None` for temporary store.
         :return: The downloaded file path
         """
+        if file_name is None:
+            _, file_name = url.rsplit('/', 1)
+            file_name, _ = file_name.split('?', 1)
+
         if download_store is None:
             download_store = BinaryStore()
 

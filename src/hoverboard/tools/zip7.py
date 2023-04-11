@@ -2,7 +2,6 @@ import os
 from .tool import Tool
 from typing import Sequence, Union
 from .errors import ToolRuntimeError
-from .search_path import SearchPath
 
 
 class Zip7(Tool):
@@ -16,13 +15,11 @@ class Zip7(Tool):
 
         :param download_link: The download link for the 7zr to use if no version was found in the system path.
         """
-        search_path = SearchPath('7zr.exe')
-        search_path.add_system_path()
+        super().__init__()
+        self.search_path.add_system_path('7zr.exe')
 
         if download_link is not None:
-            search_path.add_web_path(download_link, '7zr.exe')
-
-        super().__init__(search_path)
+            self.search_path.add_web_path(download_link)
 
     def compress(self, output_archive: str, files: Union[Sequence[str], str], compress_type='7z'):
         """

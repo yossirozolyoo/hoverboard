@@ -66,12 +66,12 @@ class WebEntry(SearchPathEntry):
     """
     Represents a web path in the search path entry.
     """
-    def __init__(self, url: str, name: str, store: BinaryStore = None):
+    def __init__(self, url: str, name: str = None, store: BinaryStore = None):
         """
         Initialize the `DirectoryEntry` instance
 
         :param url: The url to download
-        :param name: The name to use for the file
+        :param name: The name to use for the file. `None` for name extraction from the URL
         :param store: The store to download the file to. `None` for temporary store
         """
         self._url = url
@@ -84,7 +84,10 @@ class WebEntry(SearchPathEntry):
 
         :return: The string representation of the search path entry.
         """
-        return f'Web({self._url}, name={self._name})'
+        if self._name is None:
+            return f'Web({self._url})'
+        else:
+            return f'Web({self._url}, name={self._name})'
 
     def find(self) -> Union[str, None]:
         """
@@ -99,7 +102,7 @@ class SearchPath:
     """
     Represents a tool search path
     """
-    def __init__(self, default_file_name: str = None):
+    def __init__(self, default_file_name: Union[str, FileNames] = None):
         """
         Initializes a `SearchPath` instance.
 
@@ -115,6 +118,24 @@ class SearchPath:
         :return: The string representation of the search path
         """
         return repr(self._entries)
+
+    @property
+    def default_file_name(self) -> Union[None, FileNames]:
+        """
+        Returns the default file name used when adding a directory to the search path.
+
+        :return: The default file name used when adding a directory to the search path.
+        """
+        return self._default_file_name
+
+    @default_file_name.setter
+    def default_file_name(self, value: Union[None, FileNames]):
+        """
+        Sets the default file name used when adding a directory to the search path.
+
+        :param value: The value to set
+        """
+        self._default_file_name = value
 
     def find(self) -> Union[str, None]:
         """
@@ -169,12 +190,12 @@ class SearchPath:
         for directory in os.get_exec_path():
             self.add_directory(directory, file_name)
 
-    def add_web_path(self, url: str, name: str, store: BinaryStore = None):
+    def add_web_path(self, url: str, name: str = None, store: BinaryStore = None):
         """
         Adds a web path to the search path.
 
         :param url: The url to download
-        :param name: The name to use for the file
+        :param name: The name to use for the file. None for name extraction from the URL.
         :param store: The store to download the file to. `None` for temporary store
         """
         self._entries.append(WebEntry(url, name, store))
