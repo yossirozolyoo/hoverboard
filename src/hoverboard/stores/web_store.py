@@ -62,7 +62,7 @@ class WebStore:
         :param compression: The type of the compression. If `None` then the compression is decided based on the suffix
             of the url.
         :param store: The store to unzip the file into it. `None` for temporary store.
-        :param kwargs: Extra keyword arguments to pass to `ZipFile.extractall`
+        :param kwargs: Extra keyword arguments to pass to `BinaryStore`'s relevant extraction function
         :return: The store the archive was extracted to.
         """
         if compression is None:
@@ -79,7 +79,7 @@ class WebStore:
             return None
 
         if compression == 'zip':
-            store.unzip(compressed)
+            store.unzip(compressed, **kwargs)
         else:
             raise ValueError(f'Unsupported compression {repr(compression)}')
 
