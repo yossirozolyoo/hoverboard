@@ -1,4 +1,5 @@
 import shutil
+import zipfile
 from urllib3 import PoolManager, Retry
 from urllib3.exceptions import HTTPError
 from typing import Union
@@ -23,8 +24,11 @@ class WebStore:
         :return: The downloaded file path
         """
         if file_name is None:
-            _, file_name = url.rsplit('/', 1)
-            file_name, _ = file_name.split('?', 1)
+            file_name = url
+            if '?' in file_name:
+                file_name, _ = file_name.split('?', 1)
+            if '/' in file_name:
+                _, file_name = file_name.rsplit('/', 1)
 
         if download_store is None:
             download_store = BinaryStore()
@@ -48,3 +52,25 @@ class WebStore:
 
         # Download finished, return the file path
         return download_store.get_path(file_name)
+
+    @staticmethod
+    def unzip(url: str, store: BinaryStore = None, **kwargs) -> Union[BinaryStore, None]:
+        """
+        Downloads a zip file and unzips it.
+
+        :param url: The url of the archive.
+        :param store: The store to unzip the file into it. `None` for temporary store.
+        :param kwargs: Extra keyword arguments to pass to `ZipFile.extractall`
+        :return: The store the archive was extracted to.
+        """
+        if store is None:
+            store = BinaryStore()
+
+        compressed = WebStore.get(url)
+        if compressed is None:
+            return None
+
+        archive = zipfile.ZipFile(compressed)
+        archive.extractall(store.path, **kwargs)
+
+        return store
