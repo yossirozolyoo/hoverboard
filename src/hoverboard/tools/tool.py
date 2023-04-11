@@ -1,9 +1,14 @@
-import requests
 import os
 import hashlib
 import subprocess
+import shutil
+from urllib3 import Retry, PoolManager
+from urllib3.exceptions import HTTPError
 from typing import Sequence, Union
 from ..stores import BinaryStore, default
+
+
+http = PoolManager(retries=Retry(connect=5, read=2, redirect=5))
 
 
 def _generate_search_path(user_search_path: Sequence[str]) -> Sequence[str]:
@@ -55,14 +60,17 @@ def _handle_web(url: str, file_name: str) -> Union[str, None]:
         return download_store.get_path(file_name)
 
     # Download the file
-    with requests.get(url, allow_redirects=True, stream=True) as response:
-        if not response.ok:
-            # Server couldn't return the file
-            return None
+    try:
+        with http.request('GET', url, preload_content=False) as response:
+            if response.status != 200:
+                # Server couldn't return the file
+                return None
 
-        with download_store.open(file_name, 'wb') as file_obj:
-            for chunk in response.iter_content(chunk_size=8192):
-                file_obj.write(chunk)
+            with download_store.open(file_name, 'wb') as file_obj:
+                shutil.copyfileobj(response, file_obj)
+
+    except HTTPError:
+        return None
 
     # Download finished, return the file path
     return download_store.get_path(file_name)
