@@ -31,6 +31,9 @@ class Tool:
         if metadata is not None:
             self._metadata.update(metadata)
 
+        if self._metadata['name'] is None:
+            raise ValueError('Missing "name" from tool\'s metadata')
+
         self._path = path
         if self._path is None and 'path' in self._metadata:
             self._path = self._metadata['path']
@@ -39,6 +42,15 @@ class Tool:
             self._search_path = SearchPath()
         else:
             self._search_path = search_path
+
+    @property
+    def name(self) -> str:
+        """
+        Returns the name of the tool.
+
+        :return: The name of the tool.
+        """
+        return self._metadata['name']
 
     @property
     def search_path(self) -> SearchPath:
