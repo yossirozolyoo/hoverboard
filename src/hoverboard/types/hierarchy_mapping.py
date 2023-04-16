@@ -1,6 +1,7 @@
 from typing import Union, MutableMapping, Any, Iterable, Tuple, Generator, \
     Iterator
 from collections import abc
+from typing import Mapping
 
 
 OtherMapping = MutableMapping[str, Any]
@@ -267,3 +268,12 @@ class HierarchyMapping(abc.MutableMapping):
         :return: The deep copy
         """
         return HierarchyMapping(self)
+
+    @property
+    def top_level(self) -> Mapping[str, Any]:
+        """
+        Returns a dict with the top-level of the HierarchyMapping.
+
+        :return: A dict with the top-level of the HierarchyMapping.
+        """
+        return self._data.copy()
