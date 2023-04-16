@@ -1,6 +1,13 @@
 import subprocess
 from typing import Sequence, Union
 from .search_path import SearchPath
+from ..types import HierarchyMapping
+
+
+TOOL_DEFAULT_CONFIG = HierarchyMapping({
+    'name': None,
+    'version': '0.0.0.0'
+})
 
 
 class Tool:
@@ -9,14 +16,24 @@ class Tool:
     `__search_path__`. The name of the executable is in `__tool_file_name__`, or overriden by the `file_name` argument
     in `__init__`.
     """
-    def __init__(self, path: str = None, search_path: SearchPath = None):
+    __metadata__ = {}
+
+    def __init__(self, path: str = None, search_path: SearchPath = None, metadata: HierarchyMapping = None):
         """
         Initializes the `Tool` instance.
 
         :param path: The path the tool resides in
         :param search_path: The search path to use when locating the tool.
+        :param metadata: metadata to override __metadata__.
         """
+        self._metadata = TOOL_DEFAULT_CONFIG.copy()
+        self._metadata.update(self.__metadata__)
+        if metadata is not None:
+            self._metadata.update(metadata)
+
         self._path = path
+        if self._path is None and 'path' in self._metadata:
+            self._path = self._metadata['path']
 
         if search_path is None:
             self._search_path = SearchPath()
@@ -44,6 +61,15 @@ class Tool:
 
         return self._path
 
+    @property
+    def metadata(self) -> HierarchyMapping:
+        """
+        Returns the tool's metadata
+
+        :return: The tool's metadata
+        """
+        return self._metadata
+
     def run(self, arguments: Sequence[str] = None, **kwargs) -> subprocess.CompletedProcess:
         """
         Runs the tools.
@@ -69,3 +95,16 @@ class Tool:
         run_arguments.update(kwargs)
 
         return subprocess.run(arguments, **run_arguments)
+
+    @classmethod
+    def create(cls, metadata: HierarchyMapping) -> 'Tool':
+        """
+        Create an instance of the tool.
+
+        :param metadata: Metadata of the tool.
+        :return: The created instance.
+        """
+        if 'params' in metadata:
+            return cls(**metadata.params, metadata=metadata)
+        else:
+            return cls(metadata=metadata)

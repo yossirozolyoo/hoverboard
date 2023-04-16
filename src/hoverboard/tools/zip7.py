@@ -8,6 +8,10 @@ class Zip7(Tool):
     """
     Wraps the 7zr binary.
     """
+    __metadata__ = {
+        'name': '7-Zip'
+    }
+
     def __init__(self, path: str = None, download_link: str = None):
         """
         Initializes the `Zip7` instance. Finds the binary on the disk, and can possibly download it if `download_link`
