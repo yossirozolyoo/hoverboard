@@ -2,6 +2,7 @@ import os
 from .tool import Tool
 from typing import Sequence, Union
 from .errors import ToolRuntimeError
+from ..types import HierarchyMapping
 
 
 class Zip7(Tool):
@@ -12,15 +13,16 @@ class Zip7(Tool):
         'name': '7-Zip'
     }
 
-    def __init__(self, path: str = None, download_link: str = None):
+    def __init__(self, path: str = None, download_link: str = None, metadata: HierarchyMapping = None):
         """
         Initializes the `Zip7` instance. Finds the binary on the disk, and can possibly download it if `download_link`
         is supplied.
 
         :param path: The local path of 7zr.
         :param download_link: The download link for the 7zr to use if no version was found in the system path.
+        :param metadata: Additional metadata to add to the tool's metadata
         """
-        super().__init__(path=path)
+        super().__init__(path=path, metadata=metadata)
         self.search_path.add_system_path('7zr.exe')
 
         if download_link is not None:
