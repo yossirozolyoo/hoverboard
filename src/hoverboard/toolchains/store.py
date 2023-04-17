@@ -1,16 +1,21 @@
 from .toolchain import Toolchain
+from ..tools import register as register_tool
 
 
 toolchains = {}
 
 
-def register(toolchain: Toolchain):
+def register(toolchain: Toolchain, register_tools: bool = True):
     """
     Register a toolchain
 
     :param toolchain: The toolchain
+    :param register_tools: Whether to register the toolchain tools.
     """
     toolchains[toolchain.name] = toolchain
+    if register_tools:
+        for tool in toolchain.values():
+            register_tool(tool)
 
 
 def get(name: str) -> Toolchain:
