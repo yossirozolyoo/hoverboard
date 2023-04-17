@@ -1,4 +1,4 @@
-import os
+from . import store
 from collections.abc import Mapping
 from ..types import HierarchyMapping
 from ..tools import Tool
@@ -22,7 +22,7 @@ class Toolchain(MappingT, Mapping):
     """
     __metadata__ = {}
 
-    def __init__(self, metadata: Metadata = None, path: Union[str, BinaryStore] = None):
+    def __init__(self, metadata: Metadata = None, path: Union[str, BinaryStore] = None, register: bool = True):
         """
         Initializes the `Toolchain` instance.
 
@@ -67,6 +67,10 @@ class Toolchain(MappingT, Mapping):
                 base_class = Tool
 
             self._tools[tool_name] = base_class.create(tool_metadata)
+
+        # Register
+        if register:
+            store.register(self)
 
     def __iter__(self) -> Iterator[str]:
         """

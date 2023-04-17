@@ -1,11 +1,11 @@
-from .toolchain import Toolchain
+from . import toolchain as t
 from ..tools import register as register_tool
 
 
 toolchains = {}
 
 
-def register(toolchain: Toolchain, register_tools: bool = True):
+def register(toolchain: 't.Toolchain', register_tools: bool = True):
     """
     Register a toolchain
 
@@ -18,7 +18,7 @@ def register(toolchain: Toolchain, register_tools: bool = True):
             register_tool(tool)
 
 
-def get(name: str) -> Toolchain:
+def get(name: str) -> 't.Toolchain':
     """
     Get a registered toolchain. Raises `KeyError` if the toolchain wasn't registered before.
 
