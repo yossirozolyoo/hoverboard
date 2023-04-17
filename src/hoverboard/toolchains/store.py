@@ -1,22 +1,21 @@
-from .toolchain import Toolchain, Metadata
+from .toolchain import Toolchain
 
 
 toolchains = {}
 
 
-def register(name: str, toolchain: Toolchain):
+def register(toolchain: Toolchain):
     """
     Register a toolchain
 
-    :param name: The name of the toolchain
     :param toolchain: The toolchain
     """
-    toolchains[name] = toolchain
+    toolchains[toolchain.name] = toolchain
 
 
 def get(name: str) -> Toolchain:
     """
-    Get a registered toolchain. Raises `KeyError` if toolchain wasn't registered before.
+    Get a registered toolchain. Raises `KeyError` if the toolchain wasn't registered before.
 
     :param name: The name of the toolchain
     :return: The found Toolchain instance.

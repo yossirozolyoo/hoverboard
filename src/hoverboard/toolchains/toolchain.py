@@ -101,3 +101,12 @@ class Toolchain(MappingT, Mapping):
         :return: The metadata of the toolchain
         """
         return self._metadata.copy()
+
+    @property
+    def name(self) -> str:
+        """
+        Returns the toolchain's name
+
+        :return: The toolchain's name
+        """
+        return self._metadata['name']
