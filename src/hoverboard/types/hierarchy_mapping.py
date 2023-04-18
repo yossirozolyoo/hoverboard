@@ -277,3 +277,32 @@ class HierarchyMapping(abc.MutableMapping):
         :return: A dict with the top-level of the HierarchyMapping.
         """
         return self._data.copy()
+
+    def serialize(self):
+        """
+        Return a serializable object that represents the current `HierarchyMapping`.
+        Note that this method assumes that all the values that are stored in the mapping are serializable.
+
+        :return: The serializable object.
+        """
+        output = {}
+        for key, value in self._data.items():
+            if isinstance(value, HierarchyMapping):
+                output[key] = value.serialize()
+            else:
+                output[key] = value
+
+        return output
+
+    @staticmethod
+    def deserialize(state) -> 'HierarchyMapping':
+        """
+        Deserialize the returned value of `serialize`.
+
+        :param state: The returned value of `serialize`
+        :return: The deserialized object
+        """
+        if not isinstance(state, dict):
+            raise ValueError('Invalid state')
+
+        return HierarchyMapping(state)
