@@ -116,3 +116,22 @@ class BinaryStore:
         """
         archive = zipfile.ZipFile(archive_path)
         archive.extractall(self._path, **kwargs)
+
+    def decompress(self, compressed: str, compression: str = None, **kwargs):
+        """
+        Decompress a compressed file using a known compression.
+
+        :param compressed: The path to the compressed file
+        :param compression: The compression used in the file
+        :param kwargs: Additional keyword arguments to the decompression method.
+        """
+        if compression is None:
+            if os.path.extsep not in compressed:
+                raise ValueError(f'Compression not specified')
+
+            _, compression = compressed.rsplit(os.extsep, 1)
+
+        if compression == 'zip':
+            self.unzip(compressed, **kwargs)
+        else:
+            raise ValueError(f'Unsupported compression {repr(compression)}')

@@ -69,8 +69,6 @@ class WebStore:
             if os.path.extsep not in url:
                 raise ValueError(f'Compression not specified')
 
-            _, compression = url.rsplit(os.path.extsep, 1)
-
         if store is None:
             store = BinaryStore()
 
@@ -78,9 +76,5 @@ class WebStore:
         if compressed is None:
             return None
 
-        if compression == 'zip':
-            store.unzip(compressed, **kwargs)
-        else:
-            raise ValueError(f'Unsupported compression {repr(compression)}')
-
+        store.decompress(compressed, compression, **kwargs)
         return store
