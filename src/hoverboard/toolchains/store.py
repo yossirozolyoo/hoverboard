@@ -12,17 +12,17 @@ dbs = [DefaultInstallationDatabase]
 types = {}
 
 
-def register_implementation(name: str, implementation: ToolchainImplementation):
+def register_implementation(name: str, cls: ToolchainImplementation):
     """
     Register an implementation under a given name.
 
     :param name: The name of the implementation
-    :param implementation: The implementation
+    :param cls: The implementation
     """
     if name in types:
         raise KeyError(f'Implementation {repr(name)} already exists')
 
-    types[name] = implementation
+    types[name] = cls
 
 
 def implementation(name: str) -> Callable[[ToolchainImplementation], ToolchainImplementation]:
