@@ -56,23 +56,34 @@ class BinaryStore:
         """
         return open(os.path.join(self._path, file), *args, **kwargs)
 
-    def store(self, name: str) -> 'BinaryStore':
+    def store(self, name: str = None) -> 'BinaryStore':
         """
         Create an inner store to this store.
 
-        :param name: The inner store name
+        :param name: The inner store name. If `None`, a random GUID is generated as its name and the store won't be
+            registered.
         :return: The created store
         """
-        if self._name is not None:
+        if self._name is not None and name is not None:
             store_name = f'{self._name}:{name}'
             if store_name in _stores:
                 return _stores[store_name]
         else:
             store_name = None
 
-        store_path = os.path.join(self._path, name)
-        if not os.path.isdir(store_path):
-            os.mkdir(store_path)
+        store_path = None
+        if name is None:
+            succeeded = False
+            while not succeeded:
+                store_path = os.path.join(self._path, str(uuid.uuid4()))
+                if not os.path.exists(store_path):
+                    os.mkdir(store_path)
+                    succeeded = True
+
+        else:
+            store_path = os.path.join(self._path, name)
+            if not os.path.isdir(store_path):
+                os.mkdir(store_path)
 
         if self._name is None:
             return BinaryStore(path=store_path)

@@ -59,14 +59,14 @@ class InstallationDatabase:
 
         # Handle path
         if path.startswith('http://') or path.startswith('https://'):
-            store = WebStore.decompress(path, store=self._store.store(metadata['name']), **kwargs)
+            store = WebStore.decompress(path, store=self._store.store(), **kwargs)
             if store is None:
                 raise ToolchainDecompressionFailed(f'Failed to download and decompress {repr(path)}')
 
             path = store.path
 
         if os.path.isfile(path):
-            store = self._store.store(metadata['name'])
+            store = self._store.store()
             if store.decompress(path, **kwargs) is None:
                 raise ToolchainDecompressionFailed(f'Failed to decompress {repr(path)}')
 
