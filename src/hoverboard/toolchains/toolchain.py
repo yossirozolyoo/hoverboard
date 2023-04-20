@@ -39,7 +39,7 @@ class Toolchain(MappingT, Mapping):
         if self._metadata.name is None:
             raise ValueError('Missing section "name" in metadata')
 
-        # Init tools
+        # Init path
         if path is None:
             if 'path' in self._metadata:
                 path = self._metadata['path']
