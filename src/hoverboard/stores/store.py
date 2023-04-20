@@ -146,3 +146,26 @@ class BinaryStore:
             self.unzip(compressed, **kwargs)
         else:
             raise ValueError(f'Unsupported compression {repr(compression)}')
+
+    def clear(self):
+        """
+        Removes all the files and folders inside the store.
+        """
+        for root, dirs, files in os.walk(self._path, topdown=False):
+            for file in files:
+                os.unlink(file)
+
+            for directory in dirs:
+                os.rmdir(directory)
+
+    def delete(self):
+        """
+        Deletes the store, including all its storage.
+        """
+        self.clear()
+        os.rmdir(self._path)
+        self._path = None
+
+        if self._name is not None:
+            del _stores[self._name]
+            self._name = None
