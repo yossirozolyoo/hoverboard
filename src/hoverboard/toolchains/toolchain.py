@@ -1,11 +1,12 @@
 from . import store
+from .typing import Metadata
 from collections.abc import Mapping
 from ..types import HierarchyMapping
 from ..tools import Tool
 from ..stores import BinaryStore
 from typing import Union, Iterable, Tuple, Iterator, Mapping as MappingT
 
-Metadata = MappingT[str, str]
+
 Other = Union[MappingT[str, Tool], Iterable[Tuple[str, Tool]]]
 
 

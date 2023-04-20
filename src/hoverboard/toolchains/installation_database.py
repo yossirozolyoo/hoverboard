@@ -1,8 +1,10 @@
 import os
 import json
+from .typing import Metadata
 from ..types import HierarchyMapping
 from ..stores import WebStore, BinaryStore, default
 from .errors import ToolchainDecompressionFailed
+from typing import Mapping
 
 
 INSTALLATIONS_FILE = 'installations.json'
@@ -29,12 +31,15 @@ class InstallationDatabase:
             if self._store.isfile('installations.json'):
                 with self._store.open(INSTALLATIONS_FILE) as file_obj:
                     deserialized = json.load(file_obj)
-                    self._installed_db = HierarchyMapping.deserialize(deserialized)
+                    self._installed_db = {
+                        metadata['name']: HierarchyMapping.deserialize(metadata) for metadata in deserialized
+                    }
+
             else:
-                self._installed_db = HierarchyMapping()
+                self._installed_db = {}
 
     @property
-    def installed(self) -> HierarchyMapping:
+    def installed(self) -> Mapping[str, Metadata]:
         """
         Return the installed toolchains.
 
@@ -42,7 +47,9 @@ class InstallationDatabase:
             package location.
         """
         self._load_db()
-        return self._installed_db.copy()
+        return {
+            key: value.copy() for key, value in self._installed_db.items()
+        }
 
     def install(self, path: str, metadata: HierarchyMapping, **kwargs):
         """
@@ -78,10 +85,11 @@ class InstallationDatabase:
 
         metadata['path'] = path
         self._load_db()
-        self._installed_db[metadata['name']] = metadata
+        self._installed_db[metadata['name']] = HierarchyMapping(metadata)
 
         with self._store.open(INSTALLATIONS_FILE, 'w') as file_obj:
-            json.dump(self._installed_db.serialize(), file_obj)
+            serialized = list(metadata.serialize() for metadata in self._installed_db.values())
+            json.dump(serialized, file_obj)
 
 
 DefaultInstallationDatabase = InstallationDatabase(default.store('toolchains'))
