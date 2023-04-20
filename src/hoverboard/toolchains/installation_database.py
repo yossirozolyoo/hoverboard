@@ -27,7 +27,7 @@ class InstallationDatabase:
         """
         if self._installed_db is None:
             if self._store.isfile('installations.json'):
-                with open(INSTALLATIONS_FILE, 'r') as file_obj:
+                with self._store.open(INSTALLATIONS_FILE) as file_obj:
                     deserialized = json.load(file_obj)
                     self._installed_db = HierarchyMapping.deserialize(deserialized)
             else:
@@ -80,7 +80,7 @@ class InstallationDatabase:
         self._load_db()
         self._installed_db[metadata['name']] = metadata
 
-        with open(INSTALLATIONS_FILE, 'w') as file_obj:
+        with self._store.open(INSTALLATIONS_FILE, 'w') as file_obj:
             json.dump(self._installed_db.serialize(), file_obj)
 
 
