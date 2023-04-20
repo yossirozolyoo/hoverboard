@@ -153,10 +153,10 @@ class BinaryStore:
         """
         for root, dirs, files in os.walk(self._path, topdown=False):
             for file in files:
-                os.unlink(file)
+                os.unlink(os.path.join(root, file))
 
             for directory in dirs:
-                os.rmdir(directory)
+                os.rmdir(os.path.join(root, directory))
 
     def delete(self):
         """
