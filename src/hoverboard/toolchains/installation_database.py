@@ -4,7 +4,7 @@ from .typing import Metadata
 from ..types import HierarchyMapping
 from ..stores import WebStore, BinaryStore, default
 from .errors import ToolchainDecompressionFailed
-from typing import Mapping
+from typing import Mapping, Any
 
 
 INSTALLATIONS_FILE = 'installations.json'
@@ -38,6 +38,14 @@ class InstallationDatabase:
             else:
                 self._installed_db = {}
 
+    def _dump_db(self):
+        """
+        Dump the database to the disk.
+        """
+        with self._store.open(INSTALLATIONS_FILE, 'w') as file_obj:
+            serialized = list(metadata.serialize() for metadata in self._installed_db.values())
+            json.dump(serialized, file_obj)
+
     @property
     def installed(self) -> Mapping[str, Metadata]:
         """
@@ -51,7 +59,7 @@ class InstallationDatabase:
             key: value.copy() for key, value in self._installed_db.items()
         }
 
-    def install(self, path: str, metadata: HierarchyMapping, **kwargs):
+    def install(self, path: str, metadata: Mapping[str, Any], **kwargs):
         """
         Install a toolchain from path. If `path` is a directory, the toolchain is installed as is. If `path` is a
         compressed file (local or in the web), it is decompressed into the `InstallationDatabase` storage.
@@ -64,6 +72,8 @@ class InstallationDatabase:
         if 'name' not in metadata:
             raise ValueError('Missing "name" from metadata')
 
+        metadata = HierarchyMapping(metadata)
+
         # Handle path
         if path.startswith('http://') or path.startswith('https://'):
             store = WebStore.decompress(path, store=self._store.store(), **kwargs)
@@ -74,8 +84,7 @@ class InstallationDatabase:
 
         if os.path.isfile(path):
             store = self._store.store()
-            if store.decompress(path, **kwargs) is None:
-                raise ToolchainDecompressionFailed(f'Failed to decompress {repr(path)}')
+            store.decompress(path, **kwargs)
 
             path = store.path
 
@@ -85,11 +94,20 @@ class InstallationDatabase:
 
         metadata['path'] = path
         self._load_db()
-        self._installed_db[metadata['name']] = HierarchyMapping(metadata)
+        self._installed_db[metadata['name']] = metadata
 
-        with self._store.open(INSTALLATIONS_FILE, 'w') as file_obj:
-            serialized = list(metadata.serialize() for metadata in self._installed_db.values())
-            json.dump(serialized, file_obj)
+    def uninstall(self, name: str):
+        """
+        Uninstall a previously installed toolchain.
+
+        :param name: The toolchain name
+        """
+        metadata = self.installed[name]
+        if os.path.abspath(metadata['path']).startswith(os.path.abspath(self._store.path)):
+            BinaryStore(path=metadata['path']).delete()
+
+        del self._installed_db[name]
+        self._dump_db()
 
 
 DefaultInstallationDatabase = InstallationDatabase(default.store('toolchains'))
