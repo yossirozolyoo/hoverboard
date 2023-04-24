@@ -98,6 +98,8 @@ class InstallationDatabase:
         self._load_db()
         self._installed_db[metadata['name']] = metadata
 
+        self._dump_db()
+
     def uninstall(self, name: str):
         """
         Uninstall a previously installed toolchain.

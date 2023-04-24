@@ -71,6 +71,7 @@ class AVRDudeToolchain(Toolchain):
             'version': version,
             'tools': {
                 'avrdude': {
+                    'type': AVRDude,
                     'path': 'avrdude.exe',
                     'version': version
                 }
