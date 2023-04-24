@@ -4,8 +4,8 @@ from .typing import Metadata
 from ..types import HierarchyMapping
 from ..stores import WebStore, BinaryStore, default
 from .errors import ToolchainDecompressionFailed
-from typing import Mapping, Any
-
+from typing import Mapping, Any, Callable
+from . import toolchain
 
 INSTALLATIONS_FILE = 'installations.json'
 
@@ -14,6 +14,7 @@ class InstallationDatabase:
     """
     Represents an installation database for toolchains.
     """
+
     def __init__(self, store: BinaryStore):
         """
         Initialize an `InstallationDatabase` instance.
@@ -22,6 +23,7 @@ class InstallationDatabase:
         """
         self._store = store
         self._installed_db = None
+        self._types = {}
 
     def _load_db(self):
         """
@@ -108,6 +110,34 @@ class InstallationDatabase:
 
         del self._installed_db[name]
         self._dump_db()
+
+    def load(self, name: str,
+             types: Mapping[str, Callable[[HierarchyMapping], 'toolchain.Toolchain']]) -> 'toolchain.Toolchain':
+        """
+        Loads an installed toolchain
+
+        :param name: The name of the toolchain to load
+        :param types: The types that can be used to create `Toolchain` instances
+        :return: The loaded toolchain
+        """
+        metadata = self.installed[name]
+
+        if 'type' in metadata:
+            toolchain_type_name = metadata['type']
+            if toolchain_type_name not in types:
+                raise KeyError(f'Unknown toolchain type {repr(toolchain_type_name)}')
+
+            toolchain_type = types[toolchain_type_name]
+        elif metadata['name'] in types:
+            toolchain_type_name = metadata['name']
+            if toolchain_type_name not in types:
+                raise KeyError(f'Missing toolchain type for {repr(toolchain_type_name)}')
+
+            toolchain_type = types[toolchain_type_name]
+        else:
+            toolchain_type = toolchain.Toolchain
+
+        return toolchain_type(metadata=metadata)
 
 
 DefaultInstallationDatabase = InstallationDatabase(default.store('toolchains'))

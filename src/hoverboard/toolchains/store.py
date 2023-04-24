@@ -1,5 +1,5 @@
 from . import toolchain as t
-from .installation_database import DefaultInstallationDatabase
+from .installation_database import DefaultInstallationDatabase, InstallationDatabase
 from ..tools import register as register_tool
 from ..types import HierarchyMapping
 from typing import Callable, Type, Mapping, Any
@@ -68,6 +68,9 @@ def install(path: str, metadata: Mapping[str, Any]):
     """
     DefaultInstallationDatabase.install(path, metadata)
 
+    # Register the toolchain
+    _load_tool_from_database(metadata['name'], DefaultInstallationDatabase)
+
 
 def uninstall(name: str):
     """
@@ -76,6 +79,27 @@ def uninstall(name: str):
     :param name: The toolchain name
     """
     DefaultInstallationDatabase.uninstall(name)
+
+
+def _load_tool_from_database(name: str, db: InstallationDatabase) -> 't.Toolchain':
+    """
+    Loads a tool from the installation database
+
+    :param name: The name of the tool
+    :param db: The installation database
+    :return: The loaded tool
+    """
+    # Load the toolchain
+    toolchain = db.load(name, types)
+
+    # Register it
+    if 'register-tools' in toolchain.metadata:
+        register_tools = toolchain.metadata['register-tools']
+    else:
+        register_tools = True
+    register(toolchain, register_tools=register_tools)
+
+    return toolchain
 
 
 def get(name: str) -> 't.Toolchain':
@@ -90,31 +114,6 @@ def get(name: str) -> 't.Toolchain':
 
     for installation_database in dbs:
         if name in installation_database.installed:
-            metadata = installation_database.installed[name]
-
-            if 'register-tools' in metadata:
-                register_tools = metadata['register-tools']
-            else:
-                register_tools = True
-
-            if 'type' in metadata:
-                toolchain_type_name = metadata['type']
-                if toolchain_type_name not in types:
-                    raise KeyError(f'Unknown toolchain type {repr(toolchain_type_name)}')
-
-                toolchain_type = types[toolchain_type_name]
-            elif metadata['name'] in types:
-                toolchain_type_name = metadata['name']
-                if toolchain_type_name not in types:
-                    raise KeyError(f'Missing toolchain type for {repr(toolchain_type_name)}')
-
-                toolchain_type = types[toolchain_type_name]
-            else:
-                toolchain_type = t.Toolchain
-
-            toolchain = toolchain_type(metadata=metadata)
-            register(toolchain, register_tools)
-
-            return toolchain
+            return _load_tool_from_database(name, installation_database)
 
     raise KeyError(f"Couldn't find a registered toolchain named {repr(name)}")
