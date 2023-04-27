@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from ..types import HierarchyMapping
 from ..tools import Tool
 from ..stores import BinaryStore
-from typing import Union, Iterable, Tuple, Iterator, Mapping as MappingT
+from typing import Type, Union, Iterable, Tuple, Iterator, Mapping as MappingT
 
 
 Other = Union[MappingT[str, Tool], Iterable[Tuple[str, Tool]]]
@@ -22,6 +22,7 @@ class Toolchain(MappingT, Mapping):
     Represents a toolchain.
     """
     __metadata__ = {}
+    __tools__ = None
 
     def __init__(self, metadata: Metadata = None, path: Union[str, BinaryStore] = None, register: bool = True):
         """
@@ -62,8 +63,8 @@ class Toolchain(MappingT, Mapping):
             if 'name' not in tool_metadata:
                 tool_metadata['name'] = tool_name
 
-            if 'base-class' in tool_metadata:
-                base_class = tool_metadata['base-class']
+            if 'type' in tool_metadata:
+                base_class = self.__tools__[tool_metadata['type']]
             else:
                 base_class = Tool
 
@@ -97,6 +98,26 @@ class Toolchain(MappingT, Mapping):
         :return: The number of tools in the toolchain
         """
         return len(self._tools)
+
+    @classmethod
+    def tool(cls, name: str):
+        """
+        Returns a decorator that registers tools implementation
+
+        :param name: The name of the tool type
+        :return: The decorator
+        """
+        def decorator(implementation: Type[Tool]) -> Type[Tool]:
+            if cls.__tools__ is None:
+                cls.__tools__ = {
+                    name: implementation
+                }
+            else:
+                cls.__tools__[name] = implementation
+
+            return implementation
+
+        return decorator
 
     @property
     def metadata(self) -> HierarchyMapping:

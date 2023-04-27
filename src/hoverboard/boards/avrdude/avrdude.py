@@ -6,13 +6,6 @@ from ...toolchains.store import implementation, install
 from ...tools import Tool
 
 
-class AVRDude(Tool):
-    """
-    Wraps the command "avrdude".
-    """
-    pass
-
-
 @implementation('avrdude')
 class AVRDudeToolchain(Toolchain):
     """
@@ -71,9 +64,17 @@ class AVRDudeToolchain(Toolchain):
             'version': version,
             'tools': {
                 'avrdude': {
-                    'type': AVRDude,
+                    'type': 'avrdude',
                     'path': 'avrdude.exe',
                     'version': version
                 }
             }
         })
+
+
+@AVRDudeToolchain.tool('avrdude')
+class AVRDude(Tool):
+    """
+    Wraps the command "avrdude".
+    """
+    pass
