@@ -1,9 +1,9 @@
 import pytest
+import importlib
 import os
 from hoverboard.stores import BinaryStore, WebStore
-from hoverboard.toolchains import install, uninstall, get
-from hoverboard.boards.avrdude import AVRDudeToolchain
-
+from hoverboard.toolchains import install, uninstall, get_toolchain, store as store_module
+from hoverboard.boards.avrdude import avrdude as avrdude_module
 
 AVRDUDE_URL = 'https://github.com/mariusgreuel/avrdude/releases/download/v7.1-windows/' \
               'avrdude-v7.1-windows-windows-x64.zip'
@@ -26,11 +26,25 @@ def _install_and_uninstall(path: str):
         }
     })
 
-    avrdude = get('avrdude')
-    assert isinstance(avrdude, AVRDudeToolchain), 'Failed to determine toolchain type correctly'
+    # Check that the toolchain is available right after installation
+    avrdude = get_toolchain('avrdude')
+    assert isinstance(avrdude, avrdude_module.AVRDudeToolchain), 'Failed to determine toolchain type correctly'
 
+    # Check that the toolchain is available on fresh start (reloading `store` and `avrdude` is good enough)
+    importlib.reload(store_module)
+    importlib.reload(avrdude_module)
+    avrdude = get_toolchain('avrdude')
+    assert isinstance(avrdude, avrdude_module.AVRDudeToolchain), 'Failed to determine toolchain type correctly'
+
+    # Check uninstallation
     uninstall('avrdude')
-    assert os.path.exists(avrdude.metadata['path']), 'Uninstalled package and directory still exists'
+    if os.path.isdir(path):
+        assert os.path.exists(avrdude.metadata['path']), 'Uninstalled local package and directory deleted'
+    else:
+        assert not os.path.exists(avrdude.metadata['path']), 'Uninstalled package and directory still exists'
+
+    with pytest.raises(KeyError):
+        get_toolchain('avrdude')
 
 
 def test_toolchain_install_web():

@@ -48,7 +48,7 @@ class Toolchain(MappingT, Mapping):
                 path = None
 
         if isinstance(path, str):
-            path = BinaryStore(name=self._metadata.name, path=path)
+            path = BinaryStore(path=path)
 
         # Init tools
         self._tools = HierarchyMapping()

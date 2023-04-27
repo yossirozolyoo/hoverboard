@@ -1,6 +1,6 @@
 from . import toolchain as t
 from .installation_database import DefaultInstallationDatabase, InstallationDatabase
-from ..tools import register as register_tool
+from ..tools import register as register_tool, Tool
 from ..types import HierarchyMapping
 from typing import Callable, Type, Mapping, Any
 
@@ -79,6 +79,8 @@ def uninstall(name: str):
     :param name: The toolchain name
     """
     DefaultInstallationDatabase.uninstall(name)
+    if name in toolchains:
+        del toolchains[name]
 
 
 def _load_tool_from_database(name: str, db: InstallationDatabase) -> 't.Toolchain':
@@ -102,7 +104,7 @@ def _load_tool_from_database(name: str, db: InstallationDatabase) -> 't.Toolchai
     return toolchain
 
 
-def get(name: str) -> 't.Toolchain':
+def get_toolchain(name: str) -> 't.Toolchain':
     """
     Get a registered toolchain. Raises `KeyError` if the toolchain wasn't registered before.
 
@@ -117,3 +119,26 @@ def get(name: str) -> 't.Toolchain':
             return _load_tool_from_database(name, installation_database)
 
     raise KeyError(f"Couldn't find a registered toolchain named {repr(name)}")
+
+
+def get_tool(name: str) -> Tool:
+    """
+    Finds a tool under one of the registered toolchains.
+
+    :param name: The name of the tool
+    :return: The found tool
+    """
+    # Find in loaded toolchains
+    for toolchain in toolchains.values():
+        for tool_name, tool in toolchain.items():
+            if tool_name == name:
+                return tool
+
+    # Find in installed toolchains
+    for installation_database in dbs:
+        for name, metadata in installation_database.installed.items():
+            if name in metadata['tools']:
+                toolchain = _load_tool_from_database(name, installation_database)
+                return toolchain[name]
+
+    raise KeyError(f'Tool {repr(name)} isn\'t registered under any toolchain')
