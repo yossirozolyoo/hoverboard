@@ -3,7 +3,7 @@ import os.path
 from typing import Union
 from ...toolchains.toolchain import Toolchain
 from ...toolchains.store import implementation, install
-from ...tools import Tool
+from ...tools import LocalTool
 
 
 @implementation('avrdude')
@@ -73,7 +73,7 @@ class AVRDudeToolchain(Toolchain):
 
 
 @AVRDudeToolchain.tool('avrdude')
-class AVRDude(Tool):
+class AVRDude(LocalTool):
     """
     Wraps the command "avrdude".
     """

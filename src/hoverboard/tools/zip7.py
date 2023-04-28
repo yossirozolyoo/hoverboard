@@ -1,11 +1,11 @@
 import os
-from .tool import Tool
+from .local_tool import LocalTool
 from typing import Sequence, Union
 from .errors import ToolRuntimeError
 from ..types import HierarchyMapping
 
 
-class Zip7(Tool):
+class Zip7(LocalTool):
     """
     Wraps the 7zr binary.
     """

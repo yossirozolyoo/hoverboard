@@ -2,7 +2,7 @@ from . import store
 from .typing import Metadata
 from collections.abc import Mapping
 from ..types import HierarchyMapping
-from ..tools import Tool
+from ..tools import Tool, LocalTool
 from ..stores import BinaryStore
 from typing import Type, Union, Iterable, Tuple, Iterator, Mapping as MappingT
 
@@ -65,6 +65,8 @@ class Toolchain(MappingT, Mapping):
 
             if 'type' in tool_metadata:
                 base_class = self.__tools__[tool_metadata['type']]
+            elif 'path' in tool_metadata:
+                base_class = LocalTool
             else:
                 base_class = Tool
 
