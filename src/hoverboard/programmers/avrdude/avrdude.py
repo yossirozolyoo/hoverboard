@@ -1,5 +1,4 @@
 import os.path
-import tempfile
 from collections import OrderedDict
 from typing import Union
 from hoverboard.toolchains.toolchain import Toolchain
