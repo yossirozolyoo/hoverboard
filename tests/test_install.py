@@ -3,7 +3,7 @@ import importlib
 import os
 from hoverboard.stores import BinaryStore, WebStore
 from hoverboard.toolchains import install, uninstall, get_toolchain, store as store_module
-from hoverboard.boards.avrdude import avrdude as avrdude_module
+from hoverboard.programmers.avrdude import avrdude as avrdude_module
 
 AVRDUDE_URL = 'https://github.com/mariusgreuel/avrdude/releases/download/v7.1-windows/' \
               'avrdude-v7.1-windows-windows-x64.zip'

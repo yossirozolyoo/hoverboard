@@ -131,11 +131,7 @@ class InstallationDatabase:
 
             toolchain_type = types[toolchain_type_name]
         elif metadata['name'] in types:
-            toolchain_type_name = metadata['name']
-            if toolchain_type_name not in types:
-                raise KeyError(f'Missing toolchain type for {repr(toolchain_type_name)}')
-
-            toolchain_type = types[toolchain_type_name]
+            toolchain_type = types[metadata['name']]
         else:
             toolchain_type = toolchain.Toolchain
 

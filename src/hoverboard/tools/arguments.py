@@ -166,7 +166,7 @@ class TagArgument(Argument):
     """
 
     def __init__(self, tag: str, *args: Union[Argument, str], separate_tag_and_args: bool = True,
-                 required: bool = False):
+                 required: bool = False, named_default: bool = False):
         """
         Initialize a `TagArgument` instance.
 
@@ -176,15 +176,22 @@ class TagArgument(Argument):
         :param separate_tag_and_args: Whether to separate between the tag and its arguments.
         :param required: Whether the tag is required. If `True`, `KeyError` is raised when one of the named arguments
             isn't satisfied. If `False`, the tag is omitted from the argument list.
+        :param named_default: Whether a string argument defaults to a `NamedArgument` or `ConstantArgument`
         """
         self._arguments = [ConstantArgument(tag)]
         for arg in args:
-            if isinstance(arg, str):
-                self._arguments.append(NamedArgument(arg))
-            elif isinstance(arg, Argument):
+            if isinstance(arg, Argument):
                 self._arguments.append(arg)
+                continue
+
+            if named_default:
+                if not isinstance(arg, str):
+                    raise TypeError(f'Invalid type of arg {repr(arg)}')
+
+                self._arguments.append(NamedArgument(arg))
             else:
-                raise ValueError(f'Invalid arg {repr(arg)}')
+                self._arguments.append(ConstantArgument(arg))
+
 
         self._separate_tag_and_args = separate_tag_and_args
         self._required = required
@@ -275,7 +282,7 @@ class ArgumentList:
         self._namespace.update((arg.name, arg) for arg in argument.named_arguments())
 
     def add_tag(self, tag: str, *args: Union[Argument, str], separate_tag_and_args: bool = True,
-                required: bool = False):
+                required: bool = False, named_default: bool = False):
         """
         Add a `TagArgument`.
 
@@ -285,7 +292,10 @@ class ArgumentList:
         :param separate_tag_and_args: Whether to separate between the tag and its arguments.
         :param required: Whether the tag is required. If `True`, `KeyError` is raised when one of the named arguments
             isn't satisfied. If `False`, the tag is omitted from the argument list.
+        :param named_default: Whether a string argument defaults to a `NamedArgument` or `ConstantArgument`
         """
+        self.add_argument(TagArgument(tag, *args, separate_tag_and_args=separate_tag_and_args, required=required,
+                                      named_default=named_default))
 
     def clear(self):
         """
