@@ -12,9 +12,7 @@ TOOL_DEFAULT_CONFIG = HierarchyMapping({
 
 class Tool:
     """
-    Represents a wrapper for an executable. The executable is searched based on the directories found in
-    `__search_path__`. The name of the executable is in `__tool_file_name__`, or overriden by the `file_name` argument
-    in `__init__`.
+    Represents a tool that can be used, and registered by a toolchain or at the tools' store.
     """
     __metadata__ = {}
 

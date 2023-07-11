@@ -2,6 +2,7 @@ from .tool import Tool
 import subprocess
 from typing import Sequence, Union
 from .search_path import SearchPath
+from .arguments import ArgumentList
 from ..types import HierarchyMapping
 
 
@@ -13,15 +14,13 @@ TOOL_DEFAULT_CONFIG = HierarchyMapping({
 
 class LocalTool(Tool):
     """
-    Represents a wrapper for an executable. The executable is searched based on the directories found in
-    `__search_path__`. The name of the executable is in `__tool_file_name__`, or overriden by the `file_name` argument
-    in `__init__`.
+    Represents `Tool` that is a wrapper for an executable.
     """
     __metadata__ = {}
 
     def __init__(self, path: str = None, search_path: SearchPath = None, metadata: HierarchyMapping = None):
         """
-        Initializes the `Tool` instance.
+        Initializes the `LocalTool` instance.
 
         :param path: The path the tool resides in
         :param search_path: The search path to use when locating the tool.
@@ -37,6 +36,26 @@ class LocalTool(Tool):
             self._search_path = SearchPath()
         else:
             self._search_path = search_path
+
+        self._argument_list = ArgumentList()
+
+    @property
+    def argument_list(self) -> ArgumentList:
+        """
+        Returns the default argument list of the tool
+        """
+        return self._argument_list
+
+    @argument_list.setter
+    def argument_list(self, value: ArgumentList):
+        """
+        Sets the default argument list of the tool
+        :param value: The value to set
+        """
+        if not isinstance(value, ArgumentList):
+            raise TypeError(f'Invalid value {repr(value)}')
+
+        self._argument_list = value
 
     @property
     def search_path(self) -> SearchPath:
@@ -63,7 +82,8 @@ class LocalTool(Tool):
         """
         Runs the tools.
 
-        :param arguments: A sequence of strings passed to the process as arguments.
+        :param arguments: A sequence of strings passed to the process as arguments. If `None` is passed then
+            `self.argument_list` is used.
         :param kwargs: Keyword arguments to pass to `subprocess.run`
         :return: The returned `subprocess.CompletedProcess`
         """
@@ -72,7 +92,7 @@ class LocalTool(Tool):
             raise FileNotFoundError(f"Couldn't find tool in search path {repr(self._search_path)}")
 
         if arguments is None:
-            arguments = [path]
+            arguments = [path, *self.argument_list.compile()]
         else:
             arguments = [path, *arguments]
 
