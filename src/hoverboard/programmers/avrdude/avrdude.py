@@ -1,10 +1,11 @@
 import os.path
 from collections import OrderedDict
 from typing import Union
-from hoverboard.toolchains.toolchain import Toolchain
-from hoverboard.toolchains.store import implementation, install
-from hoverboard.tools import LocalTool
-from hoverboard.stores import BinaryStore
+from ...toolchains.toolchain import Toolchain
+from ...toolchains.store import implementation
+from ...tools import LocalTool
+from ...stores import BinaryStore
+from ...toolchains.installation_database import InstallationDatabase
 
 AVRDUDE_FILE_FORMATS = {
     'hex': 'i',
@@ -212,7 +213,13 @@ class AVRDudeToolchain(Toolchain):
     The toolchain that contains avrdude.
     """
     __metadata__ = {
-        'name': 'avrdude'
+        'name': 'avrdude',
+        'tools': {
+            'avrdude': {
+                'type': 'avrdude',
+                'path': 'avrdude.exe'
+            }
+        }
     }
 
     @staticmethod
@@ -248,26 +255,27 @@ class AVRDudeToolchain(Toolchain):
                 return element
 
     @classmethod
-    def install(cls, path: str, version: str = None):
+    def install(cls, db: InstallationDatabase, path: str, name: str = None, version: str = None, ):
         """
         Install the toolchain from path.
 
+        :param db: The database to install the toolchain in
         :param path: The path to the compressed archive of the toolchain.
+        :param name: The name to give to the toolchain. Defaults to 'avrdude'
         :param version: The version of the toolchain. If `None`, extracted from the file name.
         """
         # Extract version from filename if needed
         if version is None:
             version = cls._extract_version_from_path(path)
 
-        install(path, {
-            'name': 'avrdude',
-            'version': version,
-            'tools': {
-                'avrdude': {
-                    'type': 'avrdude',
-                    'path': 'avrdude.exe',
-                    'version': version
-                }
+        if name is None:
+            name = 'avrdude'
+
+        Toolchain.install(db, path, name, version=version, tools={
+            'avrdude': {
+                'type': 'avrdude',
+                'path': 'avrdude.exe',
+                'version': version
             }
         })
 
