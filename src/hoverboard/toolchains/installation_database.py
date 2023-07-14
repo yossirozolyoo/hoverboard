@@ -68,7 +68,6 @@ class InstallationDatabase:
 
         :param path: The path to the tool. If url, `path` must begin with either 'http://' or 'https://'
         :param metadata: The toolchain's metadata. Must contain its name.
-        :param compression: The compression to use if decompressing the file
         :param kwargs: Additional keyword arguments to pass to the function `decompress`.
         """
         if 'name' not in metadata:

@@ -1,10 +1,10 @@
-from typing import Union, MutableMapping, Any, Iterable, Tuple, Generator, \
+from typing import Union, Any, Iterable, Tuple, Generator, \
     Iterator
 from collections import abc
 from typing import Mapping
 
 
-OtherMapping = MutableMapping[str, Any]
+OtherMapping = Mapping[str, Any]
 KVPair = Tuple[str, Any]
 Items = Iterable[KVPair]
 
@@ -246,7 +246,7 @@ class HierarchyMapping(abc.MutableMapping):
         try:
             self._data[item] = value
         except KeyError as err:
-            raise AttributeError(f'Member {repr(item)} doesn\'t exists ' + \
+            raise AttributeError(f'Member {repr(item)} doesn\'t exists ' +
                                  f'under {repr(self)}') from err
 
     def __delattr__(self, item: str):
