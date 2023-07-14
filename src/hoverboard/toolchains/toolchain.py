@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from ..types import HierarchyMapping
 from ..tools import Tool, LocalTool
 from ..stores import BinaryStore
+from .installation_database import InstallationDatabase
 from typing import Type, Union, Iterable, Tuple, Iterator, Mapping as MappingT
 
 
@@ -138,3 +139,18 @@ class Toolchain(MappingT, Mapping):
         :return: The toolchain's name
         """
         return self._metadata['name']
+
+    @classmethod
+    def install(cls, db: InstallationDatabase, path: str, name: str, **kwargs):
+        """
+        Install the toolchain from path.
+
+        :param db: The database to install the toolchain in
+        :param path: The path to the compressed archive of the toolchain.
+        :param name: The name to give to the toolchain.
+        :param kwargs: Additional kwargs to insert to the toolchain's metadata
+        """
+        db.install(path, {
+            'name': name,
+            **kwargs
+        })
