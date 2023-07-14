@@ -6,7 +6,6 @@ from hoverboard.toolchains.store import implementation, install
 from hoverboard.tools import LocalTool
 from hoverboard.stores import BinaryStore
 
-
 AVRDUDE_FILE_FORMATS = {
     'hex': 'i',
     'raw': 'r'
@@ -160,7 +159,7 @@ class AVRDudeTarget:
 
         :param memory_type: The memory to read. Differs between chips, e.g., 'flash', 'eeprom', 'lfuse'.
         :param path: The path of the file to read the memory to. `None` for a `bytes` object to be returned.
-        :return: `None` if path is not `None`. Otherwise the read buffer as `bytes`.
+        :return: `None` if path is not `None`, otherwise the read buffer as a `bytes` object.
         """
         if path is None:
             store = BinaryStore()
@@ -279,7 +278,8 @@ class AVRDude(LocalTool):
     Wraps the command "avrdude".
     """
 
-    def create_target(self, part: str, programmer: str, port: str, baudrate: int = None, config_file: str = None) -> AVRDudeTarget:
+    def create_target(self, part: str, programmer: str, port: str, baudrate: int = None,
+                      config_file: str = None) -> AVRDudeTarget:
         """
         Initialize a `TargetConfiguration` instance.
 

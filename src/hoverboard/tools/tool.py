@@ -1,7 +1,5 @@
-import subprocess
-from typing import Sequence, Union
-from .search_path import SearchPath
 from ..types import HierarchyMapping
+from typing import Type
 
 
 TOOL_DEFAULT_CONFIG = HierarchyMapping({
@@ -49,7 +47,7 @@ class Tool:
         return self._metadata
 
     @classmethod
-    def create(cls, metadata: HierarchyMapping) -> 'Tool':
+    def create(cls: Type['Tool'], metadata: HierarchyMapping) -> 'Tool':
         """
         Create an instance of the tool.
 
@@ -57,6 +55,7 @@ class Tool:
         :return: The created instance.
         """
         if 'params' in metadata:
-            return cls(**metadata.params, metadata=metadata)
+            assert cls is not Tool, "Cannot pass params to `Tool`"
+            return cls(**metadata['params'], metadata=metadata)
         else:
             return cls(metadata=metadata)

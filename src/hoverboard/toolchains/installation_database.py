@@ -53,7 +53,7 @@ class InstallationDatabase:
         """
         Return the installed toolchains.
 
-        :return: A mapping between the installed package name to the package matadata, including a 'path' key with the
+        :return: A mapping between the installed package name to the package metadata, including a 'path' key with the
             package location.
         """
         self._load_db()

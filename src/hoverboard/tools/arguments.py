@@ -192,7 +192,6 @@ class TagArgument(Argument):
             else:
                 self._arguments.append(ConstantArgument(arg))
 
-
         self._separate_tag_and_args = separate_tag_and_args
         self._required = required
         self._named = None
